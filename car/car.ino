@@ -89,7 +89,7 @@ void turnL90(){
 	float act = GetCompassData();
 	float goal = (act + 90) % 360;
 	 
-	while(int(act - goal) < 20)
+	while(int(GetCompassData() - goal) < 20)
     {
        SetServo(90, 150);
        delay(50);
