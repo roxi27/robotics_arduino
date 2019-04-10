@@ -62,39 +62,60 @@ void Direct()
  
   Serial.println("cm");
 
-  if(val > 30)
+  if(val > 40 || val == 0)
   {
+    //Serial.println("Messze");
     SetServo(110,90);
   }
-  else if(val > 20)
+  else if(val > 30)
   {
-     SetServo(95,90);
+     //Serial.println("Közelebb");
+     SetServo(100,90);
   }
   else
   {
-    SetServo(50, 90);
-    delay(250);
+        Serial.println("Nagyon közel");
 
-    float initCompass = GetCompassData();
-    while(int(GetCompassData() - initCompass) % 360 < 90)
-    {
-       SetServo(90, 150);
-       delay(50);
-    }
+    SetServo(70, 90);
+    delay(500);
+//
+//    float initCompass = GetCompassData();
+//    while(int(GetCompassData() - initCompass) % 360 < 90)
+//    {
+//        Serial.println("Dávid a legnagyobb király");
+//        Serial.println(int(GetCompassData() - initCompass) % 360);
+//       SetServo(90, 150);
+//       delay(50);
+//    }
+
+      turn90(1);
   }
   
 }
 
-void turnL90(){
-	float act = GetCompassData();
-	float goal = (act + 90) % 360;
-	 
-	while(int(GetCompassData() - goal) < 20)
+void turn90(int direction){
+	int act = (int)GetCompassData();
+	float goal = (direction == 0) ? (float)((act + 90) % 360) : (float)((act - 90) % 360);
+
+    Serial.print("Goal: ");
+    Serial.println(goal);
+      Serial.print("act: ");
+      Serial.println(act);
+      Serial.println("difference: ");
+      Serial.print(abs(goal - GetCompassData()));
+      Serial.println(abs(goal - GetCompassData()) < 20.0);
+
+
+	while(abs(int(GetCompassData()-goal)) % 360 > 5.0)
     {
-       SetServo(90, 150);
-       delay(50);
+      Serial.println("ciklus");
+      Serial.println(abs(int(GetCompassData()-goal) % 360));
+
+      direction == 0 ? SetServo(90, 120) : SetServo(90, 60);
+      delay(50);
     }
 }
+
 
 void SetServo(int speed, int angle)
 {
