@@ -28,12 +28,12 @@ void setup() {
   Wire.begin();
 }
 int pos = 0;
+bool done = false;
 void loop() {
   Serial.println(GetCompassData());
-  bool done = false;
   if(!done){
     turnToMaxDistance();
-    done = true
+    done = true;
   }
   delay(500);
 
@@ -85,18 +85,18 @@ void Direct()
 
 }
 
-float findZeroDegree()
+float findDegree(int goalDegree)
 {
   Serial.println("Searching for Zero degree ");
   float degree = GetCompassData();
-  if (degree < 10.0)
+  if (((int)(GetCompassData()- goalDegree )% 360) < 10)
   {
     Serial.print("Insta win: ");
     return degree;  
   }
   SetServo(90, 120);
   delay(10);
-  while(((int)(GetCompassData()-0 )% 360) > 10){
+  while(((int)(GetCompassData()- goalDegree )% 360) > 10){
     Serial.println("Searching...");
     Serial.print("act: ");
     Serial.println(GetCompassData());
@@ -104,11 +104,13 @@ float findZeroDegree()
   }
   Serial.print("Found Zero degree: ");
   Serial.println(GetCompassData());
+  SetServo(90, 90);
+  delay(10000);
   return GetCompassData();
 }
 
 void turnToMaxDistance(){
-  float startPoint = findZeroDegree();
+  float startPoint = findDegree(0);
   Serial.println("Searching for Max Distance ");
   int distance = sonar.ping_cm();
   Serial.print("Default distance: ");
@@ -116,10 +118,11 @@ void turnToMaxDistance(){
   float degree = GetCompassData();
   Serial.print("Default degree: ");
   Serial.println(degree);
+  SetServo(110, 90);
   delay(100);
   Serial.print("Default diff: ");
   Serial.println(((int)(startPoint- GetCompassData()) % 360));
-  while( ((int) (startPoint- GetCompassData()) % 360) < 5.0 ){
+  while( ((int) (startPoint- GetCompassData()) % 360) > 5.0 ){
     delay(10);
     int act = sonar.ping_cm();
     if(act > distance){
@@ -130,10 +133,13 @@ void turnToMaxDistance(){
       Serial.print("Found bigger distance(degree): ");
       Serial.println(degree);
     }
-    SetServo(90, 120);
+    //SetServo(90, 120);
   }
-  
+  delay(10000);
+  findDegree((int) degree);
+  SetServo(90, 90);
 }
+
 
 void turn(int degree, int direction) {
   int act = (int)GetCompassData();
