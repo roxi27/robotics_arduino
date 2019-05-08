@@ -9,7 +9,7 @@ int i, headingValue;
 
 Servo myservo;
 Servo angleservo;// create servo object to control a servo
-
+Servo angleservo2;
 int potpin = A0;  // analog pin used to connect the potentiometer
 int val;
 
@@ -29,9 +29,12 @@ void setup() {
 }
 int pos = 0;
 void loop() {
-
   Serial.println(GetCompassData());
-  Direct();
+  bool done = false;
+  if(!done){
+    turnToMaxDistance();
+    done = true
+  }
   delay(500);
 
 }
@@ -84,25 +87,37 @@ void Direct()
 
 float findZeroDegree()
 {
+  Serial.println("Searching for Zero degree ");
   float degree = GetCompassData();
-  if (degree < 5.0)
+  if (degree < 10.0)
   {
+    Serial.print("Insta win: ");
     return degree;  
   }
-  SetServo(90, 120); // jobb v bal
+  SetServo(90, 120);
   delay(10);
-  while(degree < GetCompassData()){
-    delay(10);
+  while(((int)(GetCompassData()-0 )% 360) > 10){
+    Serial.println("Searching...");
+    Serial.print("act: ");
+    Serial.println(GetCompassData());
+    delay(100);
   }
+  Serial.print("Found Zero degree: ");
+  Serial.println(GetCompassData());
   return GetCompassData();
 }
 
 void turnToMaxDistance(){
   float startPoint = findZeroDegree();
+  Serial.println("Searching for Max Distance ");
   int distance = sonar.ping_cm();
+  Serial.print("Default distance: ");
+  Serial.println(distance);
   float degree = GetCompassData();
+  Serial.print("Default degree: ");
+  Serial.println(degree);
   delay(100);
-  Serial.print("Diff: ");
+  Serial.print("Default diff: ");
   Serial.println(((int)(startPoint- GetCompassData()) % 360));
   while( ((int) (startPoint- GetCompassData()) % 360) < 5.0 ){
     delay(10);
@@ -110,6 +125,10 @@ void turnToMaxDistance(){
     if(act > distance){
       distance = act;
       degree = GetCompassData();
+      Serial.print("Found bigger distance: ");
+      Serial.println(distance);
+      Serial.print("Found bigger distance(degree): ");
+      Serial.println(degree);
     }
     SetServo(90, 120);
   }
@@ -139,7 +158,17 @@ void turn(int degree, int direction) {
   }
 }
 
-
+void StopServo()
+{
+  myservo.detach();
+  angleservo.detach();
+  
+}
+void StartServo()
+{
+  myservo.attach(5);
+  angleservo.attach(6);
+}
 void SetServo(int speed, int angle)
 {
   myservo.write(speed);
