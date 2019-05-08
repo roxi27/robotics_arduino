@@ -35,7 +35,7 @@ void loop() {
     turnToMaxDistance();
     done = true;
   }
-  delay(500);
+  delay(1000);
 
 }
 
@@ -94,7 +94,7 @@ float findDegree(int goalDegree)
     Serial.print("Insta win: ");
     return degree;  
   }
-  SetServo(90, 120);
+  SetServo(90, 110);
   delay(10);
   while(((int)(GetCompassData()- goalDegree )% 360) > 10){
     Serial.println("Searching...");
@@ -105,12 +105,12 @@ float findDegree(int goalDegree)
   Serial.print("Found goal degree: ");
   Serial.println(GetCompassData());
   SetServo(90, 90);
-  delay(10000);
+  delay(500);
   return GetCompassData();
 }
 
 void turnToMaxDistance(){
-  float startPoint = findDegree(0);
+  float startPoint = GetCompassData(); //findDegree(0);
   Serial.println("Searching for Max Distance ");
   int distance = sonar.ping_cm();
   Serial.print("Default distance: ");
@@ -138,7 +138,7 @@ void turnToMaxDistance(){
     }
     //SetServo(90, 120);
   }
-  delay(10000);
+  delay(500);
   findDegree((int) degree);
   SetServo(90, 90);
 }
